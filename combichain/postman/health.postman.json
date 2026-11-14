@@ -1,0 +1,35 @@
+{
+  "info": {
+    "name": "COMBICHAIN API",
+    "_postman_id": "combichain-api-local",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/api/health", "host": ["{{baseUrl}}"], "path": ["api", "health"] }
+      }
+    },
+    {
+      "name": "Generate Board",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"seed\": 12345\n}", "options": { "raw": { "language": "json" } } },
+        "url": { "raw": "{{baseUrl}}/api/game/board", "host": ["{{baseUrl}}"], "path": ["api", "game", "board"] }
+      }
+    },
+    {
+      "name": "Simulate Reaction",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"seed\": 12345,\n  \"particleId\": \"p01\",\n  \"direction\": 0\n}", "options": { "raw": { "language": "json" } } },
+        "url": { "raw": "{{baseUrl}}/api/game/simulate", "host": ["{{baseUrl}}"], "path": ["api", "game", "simulate"] }
+      }
+    }
+  ],
+  "variable": [{ "key": "baseUrl", "value": "http://localhost:4000" }]
+}
