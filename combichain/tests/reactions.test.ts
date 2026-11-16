@@ -57,6 +57,17 @@ describe("particle reactions on a supplied board snapshot", () => {
     expect(result.activations.map(a => a.particleId)).toEqual(["p01", "p02"]);
   });
 
+  it("preserves the pulse heading when a redirected particle emits again", () => {
+    const snapshot = board([
+      particle("p01", "PRISM", 0, 0),
+      particle("p02", "SPARK", 50, 50),
+      particle("p03", "BURST", 50, 110),
+      particle("p04", "BURST", 78, 60)
+    ], [["p01", "p02"], ["p02", "p03"], ["p02", "p04"]]);
+    const result = simulateBoardReaction(snapshot, "p01", 0);
+    expect(result.activations.map(a => a.particleId)).toEqual(["p01", "p02", "p03"]);
+  });
+
   it("uses the supplied snapshot positions instead of regenerating from its seed", () => {
     const snapshot = board([
       particle("p01", "SPARK", 100, 100),

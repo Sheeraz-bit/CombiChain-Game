@@ -16,6 +16,7 @@ interface PulseEvent {
 
 interface Emission {
   target: Particle;
+  angle?: number;
   delay?: number;
 }
 
@@ -52,33 +53,35 @@ function chooseEmissions(board: Board, particle: Particle, incomingAngle: number
   switch (particle.type) {
     case "SPARK": {
       const eligible = inDirection(particle, normal, heading, 35);
-      return eligible.length ? [{ target: eligible[0] }] : [];
+      return eligible.length ? [{ target: eligible[0], angle: heading }] : [];
     }
     case "BURST":
-      return normal.slice(0, 3).map(target => ({ target }));
+      return normal.slice(0, 3).map(target => ({ target, angle: heading }));
     case "SPLITTER": {
       const directions = [heading, heading - degreesToRadians(45), heading + degreesToRadians(45)];
-      const chosen = new Map<string, Particle>();
+      const chosen = new Map<string, Emission>();
       for (const dir of directions) {
         const eligible = inDirection(particle, normal, normalizeAngle(dir), 24);
-        if (eligible[0]) chosen.set(eligible[0].id, eligible[0]);
+        if (eligible[0]) {
+          chosen.set(eligible[0].id, { target: eligible[0], angle: normalizeAngle(dir) });
+        }
       }
-      return [...chosen.values()].map(target => ({ target }));
+      return [...chosen.values()];
     }
     case "AMPLIFIER": {
       const eligible = inDirection(particle, amplifierCandidates, heading, 45);
-      return eligible.slice(0, 2).map(target => ({ target }));
+      return eligible.slice(0, 2).map(target => ({ target, angle: heading }));
     }
     case "PRISM": {
       const redirected = normalizeAngle(heading + degreesToRadians(60));
       const eligible = inDirection(particle, normal, redirected, 30);
-      return eligible.length ? [{ target: eligible[0] }] : [];
+      return eligible.length ? [{ target: eligible[0], angle: redirected }] : [];
     }
     case "ECHO": {
       const eligible = inDirection(particle, normal, heading, 35);
       if (!eligible.length) return [];
-      const emissions: Emission[] = [{ target: eligible[0] }];
-      if (eligible[1]) emissions.push({ target: eligible[1], delay: 0.7 });
+      const emissions: Emission[] = [{ target: eligible[0], angle: heading }];
+      if (eligible[1]) emissions.push({ target: eligible[1], angle: heading, delay: 0.7 });
       return emissions;
     }
   }
@@ -130,7 +133,7 @@ export function simulateBoardReaction(boardSnapshot: Board, particleId: string, 
     const d = distance(source, emission.target);
     queue.push({
       targetId: emission.target.id,
-      angle: angleBetween(source, emission.target),
+      angle: emission.angle ?? angleBetween(source, emission.target),
       arrival: baseTime + (emission.delay ?? 0) + d / PULSE_SPEED,
       depth,
       order: eventOrder++
