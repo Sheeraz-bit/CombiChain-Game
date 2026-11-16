@@ -74,6 +74,7 @@ export class ReactionEngine {
     let eventOrder = 0;
     let totalScore = 0;
     let maxDepth = 0;
+    let lastEventTime = 0;
 
     
 
@@ -130,18 +131,22 @@ export class ReactionEngine {
     ) => {
       const neighbours = getNeighbours(source);
 
-      const send = (targets: Particle[], direction: number) => {
+      
+const send = (targets: Particle[], direction?: number) => {
   for (const target of targets) {
+    const pulseDistance = distance(source, target);
+
     events.push({
       targetId: target.id,
-      direction,
+      direction: direction ?? getAngle(source, target),
       arrivalTime:
-        time + distance(source, target) / REACTION_CONFIG.PULSE_SPEED,
+        time + pulseDistance / REACTION_CONFIG.PULSE_SPEED,
       depth: depth + 1,
       order: eventOrder++,
     });
   }
 };
+
 
       switch (source.type) {
         case "SPARK": {
@@ -153,7 +158,7 @@ export class ReactionEngine {
         }
 
         case "BURST": {
-          send(neighbours.slice(0, 3), incomingDirection);
+          send(neighbours.slice(0, 3));
           break;
         }
 
@@ -272,6 +277,8 @@ export class ReactionEngine {
 
       const target = particleMap.get(event.targetId);
 
+      lastEventTime = Math.max(lastEventTime, event.arrivalTime);
+
       if (!target || target.activated) continue;
 
       target.activated = true;
@@ -310,15 +317,17 @@ export class ReactionEngine {
       );
     }
 
-    const varietyBonus = Math.max(0, activatedTypes.size - 1) * 50;
-    const perfectChainBonus =
-      activations.length === board.particles.length ? 500 : 0;
+    const varietyBonus = Math.min(
+  250,
+  Math.max(0, activatedTypes.size - 1) * 50
+);
 
-    const duration = activations.reduce(
-      (maximum, activation) =>
-        Math.max(maximum, activation.activatedAt),
-      0
-    );
+const perfectChainBonus =
+  activations.length === 24 && board.particles.length === 24
+    ? 500
+    : 0;
+
+const duration = Number(lastEventTime.toFixed(3));
 
     return {
       activations,

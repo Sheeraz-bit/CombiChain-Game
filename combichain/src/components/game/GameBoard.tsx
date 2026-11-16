@@ -1,8 +1,12 @@
+
 import { Crosshair } from "lucide-react";
+import type { RefObject } from "react";
+
+import type { GamePhase } from "../../game/types/game.types";
 
 interface GameBoardProps {
-  canvasRef: React.RefObject<HTMLCanvasElement | null>;
-  phase: string;
+  canvasRef: RefObject<HTMLCanvasElement | null>;
+  phase: GamePhase;
 }
 
 export default function GameBoard({
@@ -30,11 +34,13 @@ export default function GameBoard({
           aria-label="COMBICHAIN game arena"
         />
 
-        <div className="board-overlay">
-          <Crosshair size={20} />
-          <p>Preparing reaction arena...</p>
-          <span>Your particles will appear here.</span>
-        </div>
+        {phase === "LOADING" && (
+          <div className="board-overlay">
+            <Crosshair size={20} />
+            <p>Preparing reaction arena...</p>
+            <span>Your particles will appear here.</span>
+          </div>
+        )}
       </div>
 
       <div className="board-footer">

@@ -1,30 +1,32 @@
-import { useRef, useState } from "react";
 
 import GameHeader from "./components/game/GameHeader";
 import GameStats from "./components/game/GameStats";
 import GameControls from "./components/game/GameControls";
 import GameBoard from "./components/game/GameBoard";
 
+import { useGame } from "./hooks/useGame";
+
 import "./App.css";
 
 function App() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  const [score] = useState(0);
-  const [activatedCount] = useState(0);
-  const [phase] = useState("READY");
-
-  const handleNewRound = () => {
-    // Board generation will be connected in the next integration batch.
-  };
-
-  const handleTrigger = () => {
-    // Reaction simulation will be connected in the next integration batch.
-  };
+  const {
+    canvasRef,
+    phase,
+    score,
+    activatedCount,
+    round,
+    canTrigger,
+    isReacting,
+    newRound,
+    trigger,
+  } = useGame();
 
   const handleHowToPlay = () => {
     window.alert(
-      "Select a particle, drag to aim, and release to trigger a chain reaction."
+      "1. Select a particle.\n" +
+      "2. Drag in the direction you want to aim.\n" +
+      "3. Release to trigger the chain reaction.\n" +
+      "4. Try to activate as many particles as possible!"
     );
   };
 
@@ -42,10 +44,14 @@ function App() {
       <div className="game-content">
         <section className="welcome-section">
           <div>
-            <span className="section-eyebrow">CHAIN REACTION PUZZLE</span>
+            <span className="section-eyebrow">
+              CHAIN REACTION PUZZLE
+            </span>
+
             <h2>
               How far can your <span>chain</span> go?
             </h2>
+
             <p>
               One particle starts everything. Plan your direction,
               discover interactions, and create the ultimate chain reaction.
@@ -54,7 +60,7 @@ function App() {
 
           <div className="round-badge">
             <span className="round-indicator" />
-            ROUND 01
+            ROUND {String(round).padStart(2, "0")}
           </div>
         </section>
 
@@ -70,10 +76,10 @@ function App() {
         />
 
         <GameControls
-          onNewRound={handleNewRound}
-          onTrigger={handleTrigger}
-          canTrigger={false}
-          isReacting={false}
+          onNewRound={newRound}
+          onTrigger={trigger}
+          canTrigger={canTrigger}
+          isReacting={isReacting}
         />
 
         <footer className="game-footer">
